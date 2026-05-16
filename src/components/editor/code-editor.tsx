@@ -6,14 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Play, RotateCcw, Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
 
+import * as monaco from "monaco-editor";
+
 // Initialize Monaco Editor to use the local bundled version instead of CDN.
 // This completely disables the Monaco AMD loader, preventing it from hijacking
-// global `define` and `require`.
-if (typeof window !== "undefined") {
-  import("monaco-editor").then(monaco => {
-    loader.config({ monaco });
-  });
-}
+// global `define` and `require` in Next.js Turbopack.
+loader.config({ monaco });
 
 interface CodeEditorProps {
   initialCode: string;

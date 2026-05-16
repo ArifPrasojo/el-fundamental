@@ -1,8 +1,13 @@
 "use client";
 
-import { CodeEditor } from "./code-editor";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { markChapterCompleted } from "@/actions/progress";
+
+const CodeEditor = dynamic(() => import("./code-editor").then(mod => mod.CodeEditor), { 
+  ssr: false,
+  loading: () => <div className="h-[600px] w-full flex items-center justify-center border-2 border-border mecha-panel"><div className="animate-pulse text-primary font-mono tracking-widest text-sm">INITIALIZING TERMINAL...</div></div>
+});
 
 export function InteractiveWorkspace({ 
   language, 
