@@ -1,10 +1,19 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Editor from "@monaco-editor/react";
+import Editor, { loader } from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import { Play, RotateCcw, Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
+
+// Initialize Monaco Editor to use the local bundled version instead of CDN.
+// This completely disables the Monaco AMD loader, preventing it from hijacking
+// global `define` and `require`.
+if (typeof window !== "undefined") {
+  import("monaco-editor").then(monaco => {
+    loader.config({ monaco });
+  });
+}
 
 interface CodeEditorProps {
   initialCode: string;

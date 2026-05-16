@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
+import { MobileHeader } from "./mobile-header";
 import { SidebarNav } from "./sidebar-nav";
 
 export default async function DashboardLayout({
@@ -16,11 +17,25 @@ export default async function DashboardLayout({
   // Enforce authentication
   if (!session) redirect("/login");
 
+  const handleSignOut = async () => {
+    "use server";
+    const { signOut } = await import("@/auth");
+    await signOut({ redirectTo: "/" });
+  };
+
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <aside className="w-64 border-r-2 border-border bg-background flex flex-col relative z-10 shadow-[4px_0px_0px_rgba(28,61,138,0.2)]">
-        <div className="p-6">
+    <div className="flex flex-col md:flex-row h-screen bg-background overflow-hidden">
+      {/* Mobile Header */}
+      <MobileHeader 
+        userInitial={session?.user?.name?.[0] || "U"}
+        userName={session?.user?.name || "Student User"}
+        userEmail={session?.user?.email || "student@example.com"}
+        onSignOut={handleSignOut}
+      />
+
+      {/* Desktop Sidebar */}
+      <aside className="w-64 border-r-2 border-border bg-background hidden md:flex flex-col relative z-10 shadow-[4px_0px_0px_rgba(28,61,138,0.2)]">
+        <div className="p-6 border-b-2 border-border/20">
           <Link href="/" className="flex items-center justify-center mb-4 group cursor-pointer hover:opacity-90 transition-opacity">
             <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[3px_3px_0px_rgba(28,61,138,0.5)]">
               {/* Outer Hexagon */}
@@ -48,11 +63,7 @@ export default async function DashboardLayout({
               <p className="text-xs font-mono text-muted-foreground truncate">{session?.user?.email || "student@example.com"}</p>
             </div>
           </div>
-          <form action={async () => {
-            "use server";
-            const { signOut } = await import("@/auth");
-            await signOut({ redirectTo: "/" });
-          }}>
+          <form action={handleSignOut}>
             <Button variant="ghost" className="w-full justify-start rounded-none border-2 border-transparent text-accent font-bold uppercase tracking-widest text-xs hover:border-accent hover:bg-accent hover:text-accent-foreground shadow-[2px_2px_0px_transparent] hover:shadow-[4px_4px_0px_rgba(224,26,34,0.5)] transition-all h-10" type="submit">
               <LogOut className="mr-2 w-4 h-4" /> Terminate Session
             </Button>
@@ -61,8 +72,8 @@ export default async function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <div className="p-8 max-w-5xl mx-auto">
+      <main className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="p-4 md:p-8 max-w-6xl mx-auto">
           {children}
         </div>
       </main>
