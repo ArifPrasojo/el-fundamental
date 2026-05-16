@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import { Play, RotateCcw, Loader2 } from "lucide-react";
@@ -9,24 +9,124 @@ import { useTheme } from "next-themes";
 interface CodeEditorProps {
   initialCode: string;
   language?: "python" | "javascript";
+  expectedOutput?: string;
+  onSuccess?: () => void;
 }
 
-export function CodeEditor({ initialCode, language = "javascript" }: CodeEditorProps) {
+export function CodeEditor({ initialCode, language = "javascript", expectedOutput, onSuccess }: CodeEditorProps) {
   const [code, setCode] = useState(initialCode);
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+  const [pyodide, setPyodide] = useState<any>(null);
   const { theme } = useTheme();
+
+  const [isLoadingPyodide, setIsLoadingPyodide] = useState(language === "python");
+
+  // Load Pyodide asynchronously if the language is python
+  useEffect(() => {
+    if (language === "python" && !pyodide) {
+      if (document.querySelector('script[src*="pyodide"]')) {
+        // Script already exists, just wait for window.loadPyodide
+        const checkInterval = setInterval(async () => {
+          if ((window as any).loadPyodide) {
+            clearInterval(checkInterval);
+            try {
+              if (!(window as any).pyodideInstance) {
+                (window as any).pyodideInstance = await (window as any).loadPyodide({
+                  indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/"
+                });
+              }
+              setPyodide((window as any).pyodideInstance);
+              setIsLoadingPyodide(false);
+            } catch (err) {
+              console.error(err);
+            }
+          }
+        }, 500);
+        return () => clearInterval(checkInterval);
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js";
+      script.onload = async () => {
+        try {
+          if (!(window as any).pyodideInstance) {
+            (window as any).pyodideInstance = await (window as any).loadPyodide({
+              indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/"
+            });
+          }
+          setPyodide((window as any).pyodideInstance);
+          setIsLoadingPyodide(false);
+        } catch (err) {
+          console.error("Failed to load Pyodide:", err);
+          setOutput("Error: " + err);
+        }
+      };
+      script.onerror = (e) => {
+        console.error("Failed to fetch Pyodide from CDN.", e);
+        setOutput("Error: Failed to load Python engine (Pyodide). Check your network connection.");
+      };
+      document.body.appendChild(script);
+    }
+  }, [language, pyodide]);
 
   const handleRun = async () => {
     setIsRunning(true);
-    setOutput("Running...\n");
+    setOutput("");
     
     try {
-      // Simulate execution for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setOutput(prev => prev + "> Execution completed successfully.\n> Hello World!");
-    } catch (error) {
-      setOutput(prev => prev + "> Error executing code.");
+      if (language === "javascript") {
+        let logs: string[] = [];
+        // Capture console.log
+        const originalLog = console.log;
+        console.log = (...args) => {
+          logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '));
+        };
+
+        try {
+          // eslint-disable-next-line no-new-func
+          const executeCode = new Function(code);
+          executeCode();
+          const finalOutput = logs.length > 0 ? logs.join('\n') : "> Execution completed successfully. (No output)";
+          setOutput(finalOutput);
+          
+          if (expectedOutput && finalOutput.includes(expectedOutput)) {
+            if (onSuccess) onSuccess();
+          }
+        } catch (err: any) {
+          setOutput(`Error: ${err.message}`);
+        } finally {
+          console.log = originalLog;
+        }
+      } else if (language === "python") {
+        if (!pyodide) {
+          setOutput("Pyodide is still loading... Please try again in a moment.");
+          setIsRunning(false);
+          return;
+        }
+
+        // Redirect Python sys.stdout
+        pyodide.runPython(`
+          import sys
+          import io
+          sys.stdout = io.StringIO()
+        `);
+        
+        try {
+          await pyodide.runPythonAsync(code);
+          const stdout = pyodide.runPython("sys.stdout.getvalue()");
+          const finalOutput = stdout || "> Execution completed successfully. (No output)";
+          setOutput(finalOutput);
+          
+          if (expectedOutput && finalOutput.includes(expectedOutput)) {
+            if (onSuccess) onSuccess();
+          }
+        } catch (err: any) {
+          setOutput(err.message);
+        }
+      }
+    } catch (error: any) {
+      setOutput(`> Unexpected Error: ${error.message}`);
     } finally {
       setIsRunning(false);
     }
@@ -55,9 +155,9 @@ export function CodeEditor({ initialCode, language = "javascript" }: CodeEditorP
           <Button variant="ghost" size="sm" onClick={handleReset} className="h-8 text-xs">
             <RotateCcw className="w-3 h-3 mr-1" /> Reset
           </Button>
-          <Button size="sm" onClick={handleRun} disabled={isRunning} className="h-8 text-xs bg-green-600 hover:bg-green-700 text-white">
-            {isRunning ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Play className="w-3 h-3 mr-1 fill-current" />} 
-            Run
+          <Button size="sm" onClick={handleRun} disabled={isRunning || isLoadingPyodide} className="h-8 text-xs bg-green-600 hover:bg-green-700 text-white">
+            {isRunning || isLoadingPyodide ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Play className="w-3 h-3 mr-1 fill-current" />} 
+            {isLoadingPyodide ? "Loading Engine..." : "Run"}
           </Button>
         </div>
       </div>

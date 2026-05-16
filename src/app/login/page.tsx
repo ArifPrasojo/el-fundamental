@@ -1,42 +1,81 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Code2 } from "lucide-react";
 import { signIn } from "@/auth";
+import { AuthError } from "next-auth";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      {/* Background elements */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] -z-10" />
 
-      <div className="glass-card w-full max-w-md p-8 rounded-2xl relative overflow-hidden">
-        {/* Accent line */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-blue-400" />
+      <div className="mecha-panel w-full max-w-md p-8 relative shadow-[12px_12px_0px_rgba(28,61,138,0.5)]">
         
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-            <Code2 className="w-6 h-6 text-primary" />
+        <div className="flex flex-col items-center mb-8 text-center">
+          <div className="inline-block px-3 py-1 bg-secondary text-secondary-foreground text-xs font-bold tracking-widest border-2 border-primary shadow-[2px_2px_0px_rgba(28,61,138,1)] mb-6">
+            /// PILOT_LOGIN
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-          <p className="text-sm text-muted-foreground mt-2 text-center">
-            Log in to continue your interactive learning journey.
+          <h1 className="text-3xl font-extrabold tracking-tight uppercase text-primary">System Access</h1>
+          <p className="text-sm font-medium text-foreground mt-2 max-w-[250px]">
+            Enter your credentials to connect to the learning terminal.
           </p>
         </div>
 
-        <div className="space-y-4">
+        {error && (
+          <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md mb-6 text-center">
+            Invalid email or password.
+          </div>
+        )}
+
+        <div className="space-y-6">
           <form
-            action={async () => {
+            action={async (formData) => {
               "use server";
-              await signIn("github", { redirectTo: "/dashboard" });
+              try {
+                await signIn("credentials", {
+                  email: formData.get("email"),
+                  password: formData.get("password"),
+                  redirectTo: "/dashboard",
+                });
+              } catch (error) {
+                if (error instanceof AuthError) {
+                  return redirect("/login?error=CredentialsSignin");
+                }
+                throw error;
+              }
             }}
+            className="space-y-4"
           >
-            <Button variant="outline" className="w-full h-12 bg-background/50 backdrop-blur-sm hover:bg-muted/50" type="submit">
-              <svg viewBox="0 0 24 24" className="mr-2 w-5 h-5 fill-current" aria-hidden="true">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-              </svg>
-              Continue with GitHub
+            <div className="space-y-2">
+              <Label htmlFor="email" className="font-bold uppercase text-xs tracking-wider text-primary">Comms Link (Email)</Label>
+              <Input id="email" name="email" type="email" placeholder="pilot@elfundamental.io" required className="border-2 border-border rounded-none focus-visible:ring-primary focus-visible:border-primary font-mono text-sm" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="font-bold uppercase text-xs tracking-wider text-primary">Security Key (Password)</Label>
+              <Input id="password" name="password" type="password" required className="border-2 border-border rounded-none focus-visible:ring-primary focus-visible:border-primary font-mono text-sm" />
+            </div>
+            <Button type="submit" className="w-full h-12 mt-4 font-bold uppercase tracking-widest rounded-none border-2 border-primary bg-primary text-primary-foreground hover:bg-primary/90 shadow-[6px_6px_0px_rgba(251,191,36,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_rgba(251,191,36,1)] transition-all">
+              Initialize Connection
             </Button>
           </form>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border/50" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase font-bold tracking-widest mt-6 mb-6">
+              <span className="bg-background px-4 text-muted-foreground">Alternative Protocols</span>
+            </div>
+          </div>
 
           <form
             action={async () => {
@@ -44,7 +83,7 @@ export default function LoginPage() {
               await signIn("google", { redirectTo: "/dashboard" });
             }}
           >
-            <Button variant="outline" className="w-full h-12 bg-background/50 backdrop-blur-sm hover:bg-muted/50" type="submit">
+            <Button variant="outline" className="w-full h-12 border-2 border-border font-bold uppercase tracking-widest rounded-none bg-background hover:bg-primary/10 shadow-[4px_4px_0px_rgba(28,61,138,0.3)] hover:translate-y-1 hover:shadow-[2px_2px_0px_rgba(28,61,138,0.3)] transition-all" type="submit">
               <svg viewBox="0 0 24 24" className="mr-2 w-5 h-5" aria-hidden="true">
                 <path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z" fill="#EA4335" />
                 <path d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z" fill="#4285F4" />
@@ -56,10 +95,10 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <div className="mt-8 text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <Link href="/register" className="text-primary hover:underline font-medium">
-            Sign up
+        <div className="mt-8 text-center text-sm font-medium border-t-2 border-border pt-6">
+          Unregistered Pilot?{" "}
+          <Link href="/register" className="text-accent uppercase font-bold hover:underline tracking-wider">
+            Create Record
           </Link>
         </div>
       </div>

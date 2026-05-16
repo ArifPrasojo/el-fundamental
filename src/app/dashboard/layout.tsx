@@ -19,11 +19,15 @@ export default async function DashboardLayout({
       {/* Sidebar */}
       <aside className="w-64 border-r border-border/50 bg-card/50 flex flex-col">
         <div className="p-6">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="bg-primary/10 p-1.5 rounded-lg">
-              <Code2 className="w-5 h-5 text-primary" />
-            </div>
-            <span className="font-bold text-lg tracking-tight">Elfundamental</span>
+          <Link href="/" className="flex items-center justify-center mb-4 group cursor-pointer hover:opacity-90 transition-opacity">
+            <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[3px_3px_0px_rgba(28,61,138,0.5)]">
+              {/* Outer Hexagon */}
+              <path d="M50 5 L93 30 L93 70 L50 95 L7 70 L7 30 Z" stroke="currentColor" strokeWidth="8" strokeLinejoin="bevel" className="text-primary" />
+              {/* Inner details */}
+              <path d="M30 35 L70 35 L70 45 L30 45 Z" fill="currentColor" className="text-secondary" />
+              <path d="M30 55 L55 55 L55 65 L30 65 Z" fill="currentColor" className="text-accent" />
+              <rect x="70" y="55" width="10" height="10" fill="currentColor" className="text-primary" />
+            </svg>
           </Link>
         </div>
 

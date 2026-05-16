@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle2, ChevronRight, ChevronLeft } from "lucide-react";
-import { CodeEditor } from "@/components/editor/code-editor";
+import { InteractiveWorkspace } from "@/components/editor/interactive-workspace";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
@@ -38,8 +38,17 @@ export default async function ChapterLearnPage({
   const prevChapter = chapterIndex > 0 ? course.chapters[chapterIndex - 1] : null;
   const nextChapter = chapterIndex < course.chapters.length - 1 ? course.chapters[chapterIndex + 1] : null;
 
-  // Placeholder for user progress checking
-  const isCompleted = false; 
+  // Check user progress
+  const progress = await db.userProgress.findUnique({
+    where: {
+      userId_chapterId: {
+        userId: session.user.id,
+        chapterId: chapter.id
+      }
+    }
+  });
+
+  const isCompleted = !!progress?.isCompleted; 
 
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
@@ -107,9 +116,10 @@ export default async function ChapterLearnPage({
         {/* Code Sandbox Pane */}
         <div className="flex-1 flex flex-col h-[50vh] md:h-full bg-background relative">
           <div className="absolute inset-0 border-none m-0 p-0">
-            <CodeEditor 
-              language={course.language as "javascript" | "python"}
-              initialCode={`// Write your code here...`}
+            <InteractiveWorkspace 
+              language={course.language as "javascript" | "python"} 
+              initialCode={`// Write your code here...`} 
+              chapterId={chapter.id}
             />
           </div>
         </div>
