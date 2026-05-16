@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
+import { SidebarNav } from "./sidebar-nav";
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -17,7 +19,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-border/50 bg-card/50 flex flex-col">
+      <aside className="w-64 border-r-2 border-border bg-background flex flex-col relative z-10 shadow-[4px_0px_0px_rgba(28,61,138,0.2)]">
         <div className="p-6">
           <Link href="/" className="flex items-center justify-center mb-4 group cursor-pointer hover:opacity-90 transition-opacity">
             <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[3px_3px_0px_rgba(28,61,138,0.5)]">
@@ -31,37 +33,19 @@ export default async function DashboardLayout({
           </Link>
         </div>
 
-        <nav className="flex-1 px-4 space-y-2">
-          <Link href="/dashboard">
-            <Button variant="secondary" className="w-full justify-start">
-              <LayoutDashboard className="mr-2 w-4 h-4" /> Overview
-            </Button>
-          </Link>
-          <Link href="/dashboard/courses">
-            <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
-              <BookOpen className="mr-2 w-4 h-4" /> My Courses
-            </Button>
-          </Link>
-          <Link href="/dashboard/achievements">
-            <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
-              <Trophy className="mr-2 w-4 h-4" /> Achievements
-            </Button>
-          </Link>
-          <Link href="/dashboard/settings">
-            <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
-              <Settings className="mr-2 w-4 h-4" /> Settings
-            </Button>
-          </Link>
-        </nav>
+        <SidebarNav />
 
-        <div className="p-4 border-t border-border/50">
-          <div className="flex items-center space-x-3 mb-4 px-2">
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+        <div className="p-4 border-t-2 border-border bg-black/20">
+          <div className="inline-block px-2 py-0.5 bg-secondary text-secondary-foreground text-[10px] font-bold tracking-widest border border-primary mb-3">
+            /// ACTIVE_PILOT
+          </div>
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-10 h-10 border-2 border-primary bg-primary/20 flex items-center justify-center text-primary font-bold shadow-[2px_2px_0px_rgba(28,61,138,1)]">
               {session?.user?.name?.[0] || "U"}
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium truncate">{session?.user?.name || "Student User"}</p>
-              <p className="text-xs text-muted-foreground truncate">{session?.user?.email || "student@example.com"}</p>
+              <p className="text-sm font-bold uppercase tracking-wider truncate text-primary">{session?.user?.name || "Student User"}</p>
+              <p className="text-xs font-mono text-muted-foreground truncate">{session?.user?.email || "student@example.com"}</p>
             </div>
           </div>
           <form action={async () => {
@@ -69,8 +53,8 @@ export default async function DashboardLayout({
             const { signOut } = await import("@/auth");
             await signOut({ redirectTo: "/" });
           }}>
-            <Button variant="ghost" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10" type="submit">
-              <LogOut className="mr-2 w-4 h-4" /> Sign Out
+            <Button variant="ghost" className="w-full justify-start rounded-none border-2 border-transparent text-accent font-bold uppercase tracking-widest text-xs hover:border-accent hover:bg-accent hover:text-accent-foreground shadow-[2px_2px_0px_transparent] hover:shadow-[4px_4px_0px_rgba(224,26,34,0.5)] transition-all h-10" type="submit">
+              <LogOut className="mr-2 w-4 h-4" /> Terminate Session
             </Button>
           </form>
         </div>
