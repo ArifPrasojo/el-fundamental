@@ -105,14 +105,13 @@ export default async function ChapterLearnPage({
       </header>
 
       {/* Main Workspace */}
-      <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <main className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
         {/* Lesson Content Pane */}
-        <div className="w-full md:w-1/2 lg:w-2/5 border-b-4 md:border-b-0 md:border-r-4 border-border bg-background flex flex-col h-[50vh] md:h-full relative shadow-[4px_0px_0px_rgba(28,61,138,0.2)] z-10">
+        <div className="w-full md:w-1/2 lg:w-2/5 border-b-4 md:border-b-0 md:border-r-4 border-border bg-background flex flex-col min-h-[50vh] md:min-h-0 md:h-full relative shadow-[4px_0px_0px_rgba(28,61,138,0.2)] z-10 shrink-0 md:shrink">
           <div className="bg-primary/10 border-b-2 border-primary px-4 py-2 flex items-center justify-between shrink-0">
             <span className="font-bold uppercase tracking-widest text-xs text-primary">/// MISSION_BRIEFING</span>
           </div>
           
-          {/* Replaced ScrollArea with native overflow-y-auto to fix scrolling bug */}
           <div className="flex-1 p-6 md:p-8 overflow-y-auto custom-scrollbar">
             <div className="prose prose-invert max-w-none prose-headings:font-extrabold prose-headings:uppercase prose-headings:tracking-tight prose-a:text-primary prose-a:font-bold prose-code:text-accent prose-code:bg-accent/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:border prose-code:border-accent/30 prose-pre:bg-black/50 prose-pre:border-2 prose-pre:border-border prose-pre:rounded-none">
               <div dangerouslySetInnerHTML={{ __html: chapter.content }} />
@@ -121,11 +120,11 @@ export default async function ChapterLearnPage({
         </div>
 
         {/* Code Sandbox Pane */}
-        <div className="flex-1 flex flex-col h-[50vh] md:h-full bg-background relative p-4">
+        <div className="flex-1 flex flex-col min-h-[600px] md:min-h-0 md:h-full bg-background relative p-4 shrink-0 md:shrink">
           <div className="absolute inset-4 border-none m-0 p-0 shadow-[8px_8px_0px_rgba(28,61,138,0.2)]">
             <InteractiveWorkspace 
               language={course.language as "javascript" | "python"} 
-              initialCode={`// Write your code here...`} 
+              initialCode={course.language === "python" ? `# Write your Python code here...\nprint("Hello World")` : `// Write your JavaScript code here...\nconsole.log("Hello World");`} 
               chapterId={chapter.id}
             />
           </div>

@@ -150,7 +150,7 @@ export function CodeEditor({ initialCode, language = "javascript", expectedOutpu
   };
 
   return (
-    <div className="flex flex-col h-[500px] mecha-panel border-2 border-border shadow-[6px_6px_0px_rgba(28,61,138,0.3)]">
+    <div className="flex flex-col h-full min-h-[400px] w-full mecha-panel border-2 border-border shadow-[6px_6px_0px_rgba(28,61,138,0.3)]">
       {/* Editor Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border/50 bg-background/50">
         <div className="flex items-center space-x-2">
@@ -174,9 +174,9 @@ export function CodeEditor({ initialCode, language = "javascript", expectedOutpu
         </div>
       </div>
 
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/50">
+      <div className="flex-1 grid grid-cols-1 grid-rows-2 md:grid-rows-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/50 overflow-hidden">
         {/* Editor Area */}
-        <div className="relative h-full">
+        <div className="relative h-full overflow-hidden">
           <Editor
             height="100%"
             language={language}
