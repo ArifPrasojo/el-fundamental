@@ -30,23 +30,23 @@ export function SettingsForm({ initialName, email }: { initialName: string, emai
       <div className="space-y-2">
         <Label htmlFor="name" className="font-bold uppercase text-xs tracking-wider text-muted-foreground">Callsign (Full Name)</Label>
         {/* Use standard input or add key to prevent Base UI defaultValue error */}
-        <Input 
+        <input 
           key={initialName} 
           id="name" 
           name="name" 
           defaultValue={initialName} 
-          className="border-2 border-border rounded-none focus-visible:ring-primary focus-visible:border-primary font-mono text-sm" 
+          className="flex h-8 w-full min-w-0 px-2.5 py-1 transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 border-2 border-border rounded-none focus-visible:ring-primary focus-visible:border-primary font-mono text-sm bg-transparent" 
         />
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="email" className="font-bold uppercase text-xs tracking-wider text-muted-foreground">Comms Link (Email)</Label>
-        <Input 
+        <input 
           id="email" 
           type="email" 
           defaultValue={email} 
           disabled 
-          className="border-2 border-border rounded-none bg-muted/50 cursor-not-allowed font-mono text-sm" 
+          className="flex h-8 w-full min-w-0 px-2.5 py-1 transition-colors outline-none placeholder:text-muted-foreground border-2 border-border rounded-none bg-muted/50 cursor-not-allowed font-mono text-sm" 
         />
         <p className="text-xs font-mono text-muted-foreground mt-1">Comms link cannot be changed directly due to security protocols.</p>
       </div>
