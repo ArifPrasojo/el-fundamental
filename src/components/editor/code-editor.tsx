@@ -24,50 +24,53 @@ export function CodeEditor({ initialCode, language = "javascript", expectedOutpu
 
   // Load Pyodide asynchronously if the language is python
   useEffect(() => {
-    if (language === "python" && !pyodide) {
-      if (document.querySelector('script[src*="pyodide"]')) {
-        // Script already exists, just wait for window.loadPyodide
-        const checkInterval = setInterval(async () => {
+    let isMounted = true;
+
+    const loadPythonEngine = async () => {
+      if (language !== "python" || pyodide) return;
+
+      // Use a global promise to prevent concurrent loading in Strict Mode
+      if (!(window as any).pyodideLoadingPromise) {
+        (window as any).pyodideLoadingPromise = new Promise((resolve, reject) => {
           if ((window as any).loadPyodide) {
-            clearInterval(checkInterval);
-            try {
-              if (!(window as any).pyodideInstance) {
-                (window as any).pyodideInstance = await (window as any).loadPyodide({
-                  indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/"
-                });
-              }
-              setPyodide((window as any).pyodideInstance);
-              setIsLoadingPyodide(false);
-            } catch (err) {
-              console.error(err);
-            }
+            (window as any).loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/" })
+              .then(resolve)
+              .catch(reject);
+            return;
           }
-        }, 500);
-        return () => clearInterval(checkInterval);
+
+          const script = document.createElement("script");
+          script.src = "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js";
+          script.onload = () => {
+            (window as any).loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/" })
+              .then(resolve)
+              .catch(reject);
+          };
+          script.onerror = (e) => reject(new Error("Failed to load Pyodide script"));
+          document.body.appendChild(script);
+        });
       }
 
-      const script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js";
-      script.onload = async () => {
-        try {
-          if (!(window as any).pyodideInstance) {
-            (window as any).pyodideInstance = await (window as any).loadPyodide({
-              indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/"
-            });
-          }
-          setPyodide((window as any).pyodideInstance);
+      try {
+        const instance = await (window as any).pyodideLoadingPromise;
+        if (isMounted) {
+          (window as any).pyodideInstance = instance;
+          setPyodide(instance);
           setIsLoadingPyodide(false);
-        } catch (err) {
-          console.error("Failed to load Pyodide:", err);
-          setOutput("Error: " + err);
         }
-      };
-      script.onerror = (e) => {
-        console.error("Failed to fetch Pyodide from CDN.", e);
-        setOutput("Error: Failed to load Python engine (Pyodide). Check your network connection.");
-      };
-      document.body.appendChild(script);
-    }
+      } catch (err) {
+        console.error("Pyodide Init Error:", err);
+        if (isMounted) {
+          setOutput("Error: Failed to initialize Python engine. Please refresh.");
+        }
+      }
+    };
+
+    loadPythonEngine();
+
+    return () => {
+      isMounted = false;
+    };
   }, [language, pyodide]);
 
   const handleRun = async () => {
@@ -138,7 +141,7 @@ export function CodeEditor({ initialCode, language = "javascript", expectedOutpu
   };
 
   return (
-    <div className="flex flex-col h-[500px] border border-border/50 rounded-xl overflow-hidden glass-card">
+    <div className="flex flex-col h-[500px] mecha-panel border-2 border-border shadow-[6px_6px_0px_rgba(28,61,138,0.3)]">
       {/* Editor Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border/50 bg-background/50">
         <div className="flex items-center space-x-2">
