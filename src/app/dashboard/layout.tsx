@@ -3,9 +3,9 @@ import { Code2, LayoutDashboard, BookOpen, Trophy, Settings, LogOut } from "luci
 import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-
 import { MobileHeader } from "./mobile-header";
 import { SidebarNav } from "./sidebar-nav";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function DashboardLayout({
   children,
@@ -51,8 +51,11 @@ export default async function DashboardLayout({
         <SidebarNav />
 
         <div className="p-4 border-t-2 border-border bg-black/20">
-          <div className="inline-block px-2 py-0.5 bg-secondary text-secondary-foreground text-[10px] font-bold tracking-widest border border-primary mb-3">
-            /// ACTIVE_PILOT
+          <div className="flex justify-between items-center mb-3">
+            <div className="inline-block px-2 py-0.5 bg-secondary text-secondary-foreground text-[10px] font-bold tracking-widest border border-primary">
+              /// ACTIVE_PILOT
+            </div>
+            <ThemeToggle />
           </div>
           <div className="flex items-center space-x-3 mb-4">
             <div className="w-10 h-10 border-2 border-primary bg-primary/20 flex items-center justify-center text-primary font-bold shadow-[2px_2px_0px_rgba(28,61,138,1)]">

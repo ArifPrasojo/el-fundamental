@@ -34,12 +34,12 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
         >
           {children}
-          <Toaster theme="light" position="top-right" />
+          <Toaster theme="dark" position="top-right" />
         </ThemeProvider>
       </body>
     </html>

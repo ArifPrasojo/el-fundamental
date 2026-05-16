@@ -19,14 +19,16 @@ interface CodeEditorProps {
   initialCode: string;
   language?: "python" | "javascript";
   expectedOutput?: string;
+  answerCode?: string;
   onSuccess?: () => void;
 }
 
-export function CodeEditor({ initialCode, language = "javascript", expectedOutput, onSuccess }: CodeEditorProps) {
+export function CodeEditor({ initialCode, language = "javascript", expectedOutput, answerCode, onSuccess }: CodeEditorProps) {
   const [code, setCode] = useState(initialCode);
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [pyodide, setPyodide] = useState<any>(null);
+  const [failCount, setFailCount] = useState(0);
   const { theme } = useTheme();
 
   const [isLoadingPyodide, setIsLoadingPyodide] = useState(language === "python");
@@ -86,6 +88,26 @@ export function CodeEditor({ initialCode, language = "javascript", expectedOutpu
     setIsRunning(true);
     setOutput("");
     
+    const validateOutput = (finalOutput: string) => {
+      if (expectedOutput) {
+        if (finalOutput.includes(expectedOutput)) {
+          setOutput(finalOutput + "\n\n[SYSTEM] MISSION ACCOMPLISHED! 🎉");
+          setFailCount(0);
+          if (onSuccess) onSuccess();
+        } else {
+          const newFailCount = failCount + 1;
+          setFailCount(newFailCount);
+          let failMessage = `\n\n[SYSTEM] MISSION FAILED. Target output not met.`;
+          if (newFailCount >= 3 && answerCode) {
+            failMessage += `\n[SYSTEM] HINT UNLOCKED:\n========================\n${answerCode}\n========================`;
+          }
+          setOutput(finalOutput + failMessage);
+        }
+      } else {
+        setOutput(finalOutput);
+      }
+    };
+
     try {
       if (language === "javascript") {
         let logs: string[] = [];
@@ -99,12 +121,8 @@ export function CodeEditor({ initialCode, language = "javascript", expectedOutpu
           // eslint-disable-next-line no-new-func
           const executeCode = new Function(code);
           executeCode();
-          const finalOutput = logs.length > 0 ? logs.join('\n') : "> Execution completed successfully. (No output)";
-          setOutput(finalOutput);
-          
-          if (expectedOutput && finalOutput.includes(expectedOutput)) {
-            if (onSuccess) onSuccess();
-          }
+          const finalOutput = logs.length > 0 ? logs.join('\n') : "> Execution completed. (No output)";
+          validateOutput(finalOutput);
         } catch (err: any) {
           setOutput(`Error: ${err.message}`);
         } finally {
@@ -127,12 +145,8 @@ export function CodeEditor({ initialCode, language = "javascript", expectedOutpu
         try {
           await pyodide.runPythonAsync(code);
           const stdout = pyodide.runPython("sys.stdout.getvalue()");
-          const finalOutput = stdout || "> Execution completed successfully. (No output)";
-          setOutput(finalOutput);
-          
-          if (expectedOutput && finalOutput.includes(expectedOutput)) {
-            if (onSuccess) onSuccess();
-          }
+          const finalOutput = stdout || "> Execution completed. (No output)";
+          validateOutput(finalOutput);
         } catch (err: any) {
           setOutput(err.message);
         }

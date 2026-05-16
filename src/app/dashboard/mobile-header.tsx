@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, BookOpen, Trophy, Settings, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function MobileHeader({ userInitial, userName, userEmail, onSignOut }: { userInitial: string, userName: string, userEmail: string, onSignOut: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,8 +61,11 @@ export function MobileHeader({ userInitial, userName, userEmail, onSignOut }: { 
           </nav>
 
           <div className="p-6 border-t-2 border-border bg-black/40">
-            <div className="inline-block px-2 py-0.5 bg-secondary text-secondary-foreground text-[10px] font-bold tracking-widest border border-primary mb-3">
-              /// ACTIVE_PILOT
+            <div className="flex justify-between items-center mb-3">
+              <div className="inline-block px-2 py-0.5 bg-secondary text-secondary-foreground text-[10px] font-bold tracking-widest border border-primary">
+                /// ACTIVE_PILOT
+              </div>
+              <ThemeToggle />
             </div>
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-12 h-12 border-2 border-primary bg-primary/20 flex items-center justify-center text-primary font-bold shadow-[2px_2px_0px_rgba(28,61,138,1)]">

@@ -7,23 +7,28 @@ import { markChapterCompleted } from "@/actions/progress";
 export function InteractiveWorkspace({ 
   language, 
   initialCode,
-  chapterId
+  chapterId,
+  expectedOutput,
+  answerCode
 }: { 
   language: "javascript" | "python", 
   initialCode: string,
-  chapterId: string
+  chapterId: string,
+  expectedOutput?: string,
+  answerCode?: string
 }) {
   return (
     <CodeEditor 
       language={language}
       initialCode={initialCode}
-      expectedOutput="Hello" // Simplification for validation
+      expectedOutput={expectedOutput || "Hello World"} 
+      answerCode={answerCode}
       onSuccess={async () => {
         const result = await markChapterCompleted(chapterId);
         
         if (result.success) {
-          toast.success("Challenge Completed! 🎉", {
-            description: "Great job! You've successfully passed the tests and earned +50 XP.",
+          toast.success("Mission Accomplished! 🎉", {
+            description: "Target output matched! You earned +50 XP.",
             duration: 5000,
           });
         }

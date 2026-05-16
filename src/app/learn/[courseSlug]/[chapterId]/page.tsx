@@ -50,6 +50,89 @@ export default async function ChapterLearnPage({
 
   const isCompleted = !!progress?.isCompleted; 
 
+  // --- Dynamic Mission Targets Map ---
+  let targetExpectedOutput = "Hello World";
+  let targetAnswerCode = "print('Hello World')";
+  let targetInitialCode = "// Write your code here...";
+
+  if (course.language === "python") {
+    switch (chapter.order) {
+      case 1:
+        targetExpectedOutput = "Hello, Python!";
+        targetAnswerCode = `print("Hello, Python!")`;
+        targetInitialCode = `# Cetak "Hello, Python!"`;
+        break;
+      case 2:
+        targetExpectedOutput = "100";
+        targetAnswerCode = `angka = 100\nprint(angka)`;
+        targetInitialCode = `# Deklarasikan variabel 'angka' dengan nilai 100 lalu print`;
+        break;
+      case 3:
+        targetExpectedOutput = "Dewasa";
+        targetAnswerCode = `umur = 20\nif umur > 18:\n    print("Dewasa")`;
+        targetInitialCode = `# Buat kondisi IF yang mencetak "Dewasa"`;
+        break;
+      case 4:
+        targetExpectedOutput = "Ulang";
+        targetAnswerCode = `for i in range(3):\n    print("Ulang")`;
+        targetInitialCode = `# Gunakan For Loop untuk mencetak "Ulang" 3 kali`;
+        break;
+      case 5:
+        targetExpectedOutput = "Sistem Aman";
+        targetAnswerCode = `def cek_status():\n    print("Sistem Aman")\ncek_status()`;
+        targetInitialCode = `# Definisikan fungsi cek_status() dan panggil`;
+        break;
+      case 6:
+        targetExpectedOutput = "Pedang";
+        targetAnswerCode = `inventaris = ["Pedang", "Panah", "Ramuan"]\nprint(inventaris[0])`;
+        targetInitialCode = `# Buat list 'inventaris' dan cetak indeks pertama ("Pedang")`;
+        break;
+      case 7:
+        targetExpectedOutput = "Gundam";
+        targetAnswerCode = `pesawat = {"model": "Gundam"}\nprint(pesawat["model"])`;
+        targetInitialCode = `# Buat dictionary 'pesawat' dan cetak nilai dari key "model"`;
+        break;
+    }
+  } else if (course.language === "javascript") {
+    switch (chapter.order) {
+      case 1:
+        targetExpectedOutput = "JS Ready";
+        targetAnswerCode = `console.log("JS Ready");`;
+        targetInitialCode = `// Gunakan console.log untuk mencetak "JS Ready"`;
+        break;
+      case 2:
+        targetExpectedOutput = "300";
+        targetAnswerCode = `const maxSpeed = 300;\nconsole.log(maxSpeed);`;
+        targetInitialCode = `// Buat konstanta maxSpeed = 300 lalu print`;
+        break;
+      case 3:
+        targetExpectedOutput = "42";
+        targetAnswerCode = `console.log(6 * 7);`;
+        targetInitialCode = `// Lakukan operasi matematika yang menghasilkan output 42`;
+        break;
+      case 4:
+        targetExpectedOutput = "Akses Diberikan";
+        targetAnswerCode = `if (true) {\n  console.log("Akses Diberikan");\n}`;
+        targetInitialCode = `// Buat blok IF yang mencetak "Akses Diberikan"`;
+        break;
+      case 5:
+        targetExpectedOutput = "Dor!";
+        targetAnswerCode = `const fire = () => console.log("Dor!");\nfire();`;
+        targetInitialCode = `// Buat arrow function fire() dan jalankan`;
+        break;
+      case 6:
+        targetExpectedOutput = "99";
+        targetAnswerCode = `let arr = [];\narr.push(99);\nconsole.log(arr[0]);`;
+        targetInitialCode = `// Push angka 99 ke dalam array kosong lalu print indeks ke-0`;
+        break;
+      case 7:
+        targetExpectedOutput = "Online";
+        targetAnswerCode = `let obj = { status: "Online" };\nconsole.log(obj.status);`;
+        targetInitialCode = `// Cetak properti status bernilai "Online" dari sebuah objek`;
+        break;
+    }
+  }
+
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       {/* Header */}
@@ -124,7 +207,9 @@ export default async function ChapterLearnPage({
           <div className="absolute inset-4 border-none m-0 p-0 shadow-[8px_8px_0px_rgba(28,61,138,0.2)]">
             <InteractiveWorkspace 
               language={course.language as "javascript" | "python"} 
-              initialCode={course.language === "python" ? `# Write your Python code here...\nprint("Hello World")` : `// Write your JavaScript code here...\nconsole.log("Hello World");`} 
+              initialCode={targetInitialCode} 
+              expectedOutput={targetExpectedOutput}
+              answerCode={targetAnswerCode}
               chapterId={chapter.id}
             />
           </div>
