@@ -16,32 +16,39 @@ export default async function StudentCoursesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Available Courses</h1>
-        <p className="text-muted-foreground">Pick a course and start learning the fundamentals.</p>
+        <div className="inline-block px-3 py-1 bg-secondary text-secondary-foreground text-xs font-bold tracking-widest border-2 border-primary shadow-[2px_2px_0px_rgba(28,61,138,1)] mb-4">
+          /// TRAINING_MODULES
+        </div>
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight uppercase text-primary">Available Combat Simulations</h1>
+        <p className="text-foreground font-medium mt-2">Pick a technical course and commence your engineering training.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         {courses.map((course) => (
-          <Card key={course.id} className="glass-card flex flex-col h-full hover:border-primary/50 transition-colors">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/80 to-primary/20 flex items-center justify-center text-primary-foreground font-bold shadow-lg mb-4">
-                {course.language === "javascript" ? "JS" : course.language === "python" ? "PY" : "</>"}
+          <div key={course.id} className="mecha-panel flex flex-col h-full border-2 border-border shadow-[8px_8px_0px_rgba(28,61,138,0.3)] hover:shadow-[12px_12px_0px_rgba(251,191,36,0.8)] hover:border-primary transition-all duration-300">
+            <div className="p-6 flex-1 flex flex-col">
+              <div className="flex justify-between items-start mb-6">
+                <div className={`w-16 h-16 border-2 border-primary shadow-[4px_4px_0px_rgba(28,61,138,1)] flex items-center justify-center text-primary font-bold text-2xl ${course.language === "javascript" ? "bg-accent/10" : "bg-primary/10"}`}>
+                  {course.language === "javascript" ? "JS" : course.language === "python" ? "PY" : "</>"}
+                </div>
+                <div className="bg-background px-3 py-1 border-2 border-muted text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center">
+                  <BookOpen className="w-3 h-3 mr-2" />
+                  {course._count.chapters} Chapters
+                </div>
               </div>
-              <CardTitle className="text-xl">{course.title}</CardTitle>
-              <CardDescription className="line-clamp-2">{course.description}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-end mt-4">
-              <div className="flex items-center text-sm text-muted-foreground mb-4">
-                <BookOpen className="w-4 h-4 mr-2" />
-                <span>{course._count.chapters} Chapters</span>
-              </div>
-              <Link href={`/courses/${course.slug}`} className="w-full">
-                <Button className="w-full">
-                  View Course
+              
+              <h2 className="text-2xl font-extrabold uppercase tracking-tight mb-3 text-foreground">{course.title}</h2>
+              <p className="text-sm font-medium text-muted-foreground line-clamp-3 mb-8 flex-1 border-l-4 border-accent pl-3">
+                {course.description}
+              </p>
+
+              <Link href={`/courses/${course.slug}`} className="w-full mt-auto">
+                <Button className="w-full h-12 font-bold uppercase tracking-widest rounded-none border-2 border-primary bg-primary text-primary-foreground hover:bg-primary/90 shadow-[4px_4px_0px_rgba(251,191,36,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_rgba(251,191,36,1)] transition-all">
+                  <Play className="w-4 h-4 mr-2 fill-current" /> Initialize Module
                 </Button>
               </Link>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
     </div>

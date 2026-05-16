@@ -57,85 +57,99 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Welcome back, {session.user.name?.split(' ')[0] || 'Learner'}!</h1>
-        <p className="text-muted-foreground">Ready to continue your coding journey?</p>
+        <div className="inline-block px-3 py-1 bg-secondary text-secondary-foreground text-xs font-bold tracking-widest border-2 border-primary shadow-[2px_2px_0px_rgba(28,61,138,1)] mb-4">
+          /// PILOT_OVERVIEW
+        </div>
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight uppercase text-primary">Command Center</h1>
+        <p className="text-foreground font-medium mt-2">Welcome back, {session.user.name?.split(' ')[0] || 'Pilot'}. Here is your current combat training status.</p>
       </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Daily Streak</CardTitle>
-            <Flame className="w-4 h-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1 Day</div>
-            <p className="text-xs text-muted-foreground mt-1">Keep it up to earn the 7-day badge!</p>
-          </CardContent>
-        </Card>
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total XP</CardTitle>
-            <Trophy className="w-4 h-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalXp} XP</div>
-            <p className="text-xs text-muted-foreground mt-1">Earn 50 XP per completed chapter</p>
-          </CardContent>
-        </Card>
-        <Card className="glass-card">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Modules Completed</CardTitle>
-            <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">✓</div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCompleted} / {totalChapters || '-'}</div>
-            <p className="text-xs text-muted-foreground mt-1">{overallProgressPercentage}% overall completion</p>
-          </CardContent>
-        </Card>
+        <div className="mecha-panel p-6 border-2 border-border shadow-[6px_6px_0px_rgba(28,61,138,0.3)] flex items-center space-x-4">
+          <div className="p-3 bg-primary/10 border-2 border-primary text-primary shadow-[2px_2px_0px_rgba(28,61,138,1)]">
+            <Flame className="w-6 h-6 text-orange-500" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Daily Streak</p>
+            <h3 className="text-2xl font-extrabold">1 Day</h3>
+          </div>
+        </div>
+        
+        <div className="mecha-panel p-6 border-2 border-border shadow-[6px_6px_0px_rgba(251,191,36,0.3)] flex items-center space-x-4">
+          <div className="p-3 bg-accent/10 border-2 border-accent text-accent shadow-[2px_2px_0px_rgba(224,26,34,1)]">
+            <Trophy className="w-6 h-6 text-yellow-500" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Total XP Earned</p>
+            <h3 className="text-2xl font-extrabold">{totalXp} XP</h3>
+          </div>
+        </div>
+
+        <div className="mecha-panel p-6 border-2 border-border shadow-[6px_6px_0px_rgba(34,197,94,0.3)] flex items-center space-x-4">
+          <div className="p-3 bg-green-500/10 border-2 border-green-500 text-green-500 shadow-[2px_2px_0px_rgba(34,197,94,1)]">
+            <div className="w-6 h-6 flex items-center justify-center font-bold">✓</div>
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Modules Cleared</p>
+            <h3 className="text-2xl font-extrabold">{totalCompleted} / {totalChapters || '-'}</h3>
+          </div>
+        </div>
       </div>
 
       {/* Continue Learning */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Continue Learning</h2>
+      <div className="mt-12">
+        <h2 className="text-2xl font-extrabold uppercase tracking-tight mb-6 flex items-center border-b-2 border-border pb-2 text-foreground">
+          <span className="w-3 h-3 bg-primary mr-3 shadow-[2px_2px_0px_rgba(251,191,36,1)]"></span> Active Simulations
+        </h2>
         
         {activeCourseData ? (
-          <Card className="glass-card border-primary/20 overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -z-10" />
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/80 to-primary/20 flex items-center justify-center flex-shrink-0 shadow-lg font-bold text-xl text-primary-foreground">
-                  {activeCourseData.course.language === "javascript" ? "JS" : activeCourseData.course.language === "python" ? "PY" : "</>"}
-                </div>
-                <div className="flex-1 w-full">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">{activeCourseData.course.language}</span>
-                    <span className="text-xs text-muted-foreground">•</span>
-                    <span className="text-xs text-muted-foreground">{activeCourseData.course.title}</span>
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">Resume Course</h3>
-                  <div className="flex items-center space-x-4 w-full">
-                    <div className="flex-1 max-w-md">
-                      <Progress value={50} className="h-2" /> {/* Mock calculation for specific course progress */}
-                    </div>
-                    <span className="text-sm font-medium">{activeCourseData.completedCount} chapters done</span>
-                  </div>
-                </div>
-                <Link href={`/courses/${activeCourseData.course.slug}`}>
-                  <Button size="lg" className="w-full md:w-auto shadow-[0_0_20px_-5px_rgba(var(--primary),0.5)]">
-                    <Play className="mr-2 w-4 h-4 fill-current" /> Continue
-                  </Button>
-                </Link>
+          <div className="mecha-panel p-6 md:p-8 border-2 border-border shadow-[8px_8px_0px_rgba(28,61,138,0.2)]">
+            <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
+              <div className={`w-20 h-20 border-2 border-primary shadow-[4px_4px_0px_rgba(28,61,138,1)] flex items-center justify-center font-bold text-3xl flex-shrink-0 ${activeCourseData.course.language === "javascript" ? "bg-accent/10 text-accent" : "bg-primary/10 text-primary"}`}>
+                {activeCourseData.course.language === "javascript" ? "JS" : activeCourseData.course.language === "python" ? "PY" : "</>"}
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex-1 w-full">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-xs font-bold text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 border border-primary">{activeCourseData.course.language}</span>
+                </div>
+                <h3 className="text-2xl font-extrabold uppercase tracking-tight mb-4">{activeCourseData.course.title}</h3>
+                
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Training Progress</span>
+                  <span className="text-sm font-bold text-primary">{activeCourseData.completedCount} Missions Done</span>
+                </div>
+                
+                {/* Custom Mecha Progress Bar */}
+                <div className="w-full h-4 bg-muted border-2 border-border overflow-hidden">
+                  <div 
+                    className="h-full bg-primary relative" 
+                    style={{ width: `${Math.min(100, (activeCourseData.completedCount / 7) * 100)}%` }}
+                  >
+                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSIvPgo8L3N2Zz4=')]"></div>
+                  </div>
+                </div>
+              </div>
+              <Link href={`/courses/${activeCourseData.course.slug}`} className="w-full md:w-auto mt-4 md:mt-0">
+                <Button className="w-full md:w-auto h-14 px-8 font-bold uppercase tracking-widest rounded-none border-2 border-primary bg-primary text-primary-foreground hover:bg-primary/90 shadow-[6px_6px_0px_rgba(251,191,36,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_rgba(251,191,36,1)] transition-all">
+                  <Play className="mr-2 w-5 h-5 fill-current" /> Resume
+                </Button>
+              </Link>
+            </div>
+          </div>
         ) : (
-          <Card className="glass-card p-8 text-center border-dashed">
-            <p className="text-muted-foreground mb-4">You haven't started any courses yet.</p>
+          <div className="mecha-panel p-12 border-2 border-dashed border-muted flex flex-col items-center justify-center text-center opacity-70">
+            <div className="w-16 h-16 bg-muted border-2 border-border mb-4 flex items-center justify-center">
+              <span className="text-2xl font-bold text-muted-foreground">?</span>
+            </div>
+            <h3 className="text-xl font-bold uppercase mb-2">No Active Data</h3>
+            <p className="text-sm font-medium text-muted-foreground mb-6 max-w-sm">You haven't initiated any training simulations yet. Select a module to begin.</p>
             <Link href="/dashboard/courses">
-              <Button>Browse Courses</Button>
+              <Button variant="outline" className="font-bold uppercase tracking-widest rounded-none border-2 border-primary text-primary bg-background hover:bg-primary/10 shadow-[4px_4px_0px_rgba(28,61,138,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_rgba(28,61,138,1)] transition-all">
+                Browse Modules
+              </Button>
             </Link>
-          </Card>
+          </div>
         )}
       </div>
     </div>
