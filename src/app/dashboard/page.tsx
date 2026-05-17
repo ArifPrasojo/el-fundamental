@@ -7,6 +7,46 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
+// Helper to calculate daily learning streak based on completed missions
+function calculateStreak(progressDates: Date[]) {
+  if (!progressDates || progressDates.length === 0) return 0;
+  
+  // Extract unique dates as YYYY-MM-DD
+  const uniqueDates = Array.from(new Set(progressDates.map(date => {
+    const parsedDate = new Date(date);
+    return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}`;
+  }))).sort((a, b) => b.localeCompare(a)); // Descending order (latest first)
+
+  if (uniqueDates.length === 0) return 0;
+
+  const todayDate = new Date();
+  const todayStr = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
+  
+  const yesterdayDate = new Date(todayDate);
+  yesterdayDate.setDate(todayDate.getDate() - 1);
+  const yesterdayStr = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`;
+
+  let currentStreak = 0;
+  let expectedDateStr = uniqueDates[0] === todayStr ? todayStr : (uniqueDates[0] === yesterdayStr ? yesterdayStr : null);
+
+  if (!expectedDateStr) return 0; // The latest activity is older than yesterday
+
+  for (let i = 0; i < uniqueDates.length; i++) {
+    const dStr: string = uniqueDates[i] as string;
+    if (dStr === expectedDateStr) {
+      currentStreak++;
+      // Set expected to the day before
+      const previousDay: Date = new Date(dStr);
+      previousDay.setDate(previousDay.getDate() - 1);
+      expectedDateStr = `${previousDay.getFullYear()}-${String(previousDay.getMonth() + 1).padStart(2, '0')}-${String(previousDay.getDate()).padStart(2, '0')}`;
+    } else {
+      break;
+    }
+  }
+
+  return currentStreak;
+}
+
 export default async function DashboardPage() {
   const session = await auth();
   
@@ -25,12 +65,18 @@ export default async function DashboardPage() {
           course: true
         }
       }
+    },
+    orderBy: {
+      completedAt: 'desc'
     }
   });
 
   const totalCompleted = progressList.length;
   const xpPerChapter = 50;
   const totalXp = totalCompleted * xpPerChapter;
+
+  // Calculate dynamic streak
+  const currentStreak = calculateStreak(progressList.map(p => p.completedAt));
 
   // Find total chapters available
   const totalChapters = await db.chapter.count();
@@ -71,8 +117,8 @@ export default async function DashboardPage() {
             <Flame className="w-6 h-6 text-orange-500" />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Daily Streak</p>
-            <h3 className="text-2xl font-extrabold">1 Day</h3>
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Combat Streak</p>
+            <h3 className="text-2xl font-extrabold">{currentStreak} {currentStreak === 1 ? 'Day' : 'Days'}</h3>
           </div>
         </div>
         
