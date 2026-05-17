@@ -6,12 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Play, RotateCcw, Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
 
-import * as monaco from "monaco-editor";
-
-// Initialize Monaco Editor to use the local bundled version instead of CDN.
-// This completely disables the Monaco AMD loader, preventing it from hijacking
-// global `define` and `require` in Next.js Turbopack.
-loader.config({ monaco });
+// We will load monaco-editor dynamically in useEffect to prevent SSR crashes.
 
 interface CodeEditorProps {
   initialCode: string;
@@ -30,6 +25,24 @@ export function CodeEditor({ initialCode, language = "javascript", expectedOutpu
   const { theme } = useTheme();
 
   const [isLoadingPyodide, setIsLoadingPyodide] = useState(language === "python");
+  const [isMonacoReady, setIsMonacoReady] = useState(false);
+
+  // Initialize Monaco Editor to use the local bundled version instead of CDN dynamically.
+  // This completely disables the Monaco AMD loader, preventing it from hijacking global `define`.
+  useEffect(() => {
+    let isMounted = true;
+    import("monaco-editor").then(monaco => {
+      if (isMounted) {
+        loader.config({ monaco });
+        setIsMonacoReady(true);
+      }
+    }).catch(err => {
+      console.error("Failed to load local monaco-editor:", err);
+      // Fallback: let it use CDN if local fails
+      if (isMounted) setIsMonacoReady(true);
+    });
+    return () => { isMounted = false; };
+  }, []);
 
   // Load Pyodide asynchronously if the language is python
   useEffect(() => {
@@ -188,22 +201,29 @@ export function CodeEditor({ initialCode, language = "javascript", expectedOutpu
 
       <div className="flex-1 grid grid-cols-1 grid-rows-2 md:grid-rows-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/50 overflow-hidden">
         {/* Editor Area */}
-        <div className="relative h-full overflow-hidden">
-          <Editor
-            height="100%"
-            language={language}
-            theme={theme === "dark" ? "vs-dark" : "light"}
-            value={code}
-            onChange={(val) => setCode(val || "")}
-            options={{
-              minimap: { enabled: false },
-              fontSize: 14,
-              fontFamily: "var(--font-geist-mono)",
-              padding: { top: 16 },
-              scrollBeyondLastLine: false,
-              smoothScrolling: true,
-            }}
-          />
+        <div className="relative h-full overflow-hidden flex flex-col">
+          {!isMonacoReady ? (
+            <div className="flex-1 flex items-center justify-center bg-black/50">
+              <Loader2 className="w-6 h-6 text-primary animate-spin" />
+              <span className="ml-3 text-sm font-mono tracking-widest text-primary animate-pulse">BOOTING ENGINE...</span>
+            </div>
+          ) : (
+            <Editor
+              height="100%"
+              language={language}
+              theme={theme === "dark" ? "vs-dark" : "light"}
+              value={code}
+              onChange={(val) => setCode(val || "")}
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                fontFamily: "var(--font-geist-mono)",
+                padding: { top: 16 },
+                scrollBeyondLastLine: false,
+                smoothScrolling: true,
+              }}
+            />
+          )}
         </div>
 
         {/* Console Output */}
